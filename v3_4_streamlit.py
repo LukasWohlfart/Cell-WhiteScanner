@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import cv2
+from cv2 import cvtColor, threshold, countNonZero, COLOR_BGR2RGB, COLOR_BGR2GRAY, THRESH_BINARY
 import os
 from PIL import Image
 import base64
@@ -58,12 +58,12 @@ def to_excel_file(df, thresh, path):
 if selected is not None and len(save_path) > 5:
     img = Image.open(selected)
     img = np.array(img.convert('RGB'))
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img = cvtColor(img, COLOR_BGR2RGB)
+    img_gray = cvtColor(img, COLOR_BGR2GRAY)
     height, width = img_gray.shape
     count = height * width
-    ret,mask = cv2.threshold(img_gray,thresh,255,cv2.THRESH_BINARY)
-    perc = np.round(cv2.countNonZero(mask)/count*100, decimals= 4)
+    ret,mask = threshold(img_gray,thresh,255,THRESH_BINARY)
+    perc = np.round(countNonZero(mask)/count*100, decimals= 4)
 
     col1.header("Original")
     col1.image(img, use_column_width=True, channels="BGR")
@@ -78,12 +78,12 @@ if selected is not None and len(save_path) > 5:
         if i is not None:
             img_i = Image.open(i)
             img_i = np.array(img_i.convert('RGB'))
-            img_i = cv2.cvtColor(img_i, cv2.COLOR_BGR2RGB)
-            img_i_gray = cv2.cvtColor(img_i, cv2.COLOR_BGR2GRAY)
+            img_i = cvtColor(img_i, COLOR_BGR2RGB)
+            img_i_gray = cvtColor(img_i, COLOR_BGR2GRAY)
             height_i, width_i = img_i_gray.shape
             count_i = height_i * width_i
-            ret_i,mask_i = cv2.threshold(img_i_gray,thresh,255,cv2.THRESH_BINARY)
-            perc_i = np.round(cv2.countNonZero(mask_i)/count_i*100, decimals= 4)
+            ret_i,mask_i = threshold(img_i_gray,thresh,255,THRESH_BINARY)
+            perc_i = np.round(countNonZero(mask_i)/count_i*100, decimals= 4)
             percents.append(np.round(perc_i, decimals = 2))
             
     
@@ -106,20 +106,20 @@ if selected is not None and len(save_path) > 5:
             if i is not None:
                 img_i = Image.open(i)
                 img_i = np.array(img_i.convert('RGB'))
-                img_i = cv2.cvtColor(img_i, cv2.COLOR_BGR2RGB)
-                img_i_gray = cv2.cvtColor(img_i, cv2.COLOR_BGR2GRAY)
+                img_i = cvtColor(img_i, COLOR_BGR2RGB)
+                img_i_gray = cvtColor(img_i, COLOR_BGR2GRAY)
                 height_i, width_i = img_i_gray.shape
                 count_i = height_i * width_i
-                ret_i,mask_i = cv2.threshold(img_i_gray,thresh,255,cv2.THRESH_BINARY)
-                perc_i = np.round(cv2.countNonZero(mask_i)/count_i*100, decimals= 4)
+                ret_i,mask_i = threshold(img_i_gray,thresh,255,THRESH_BINARY)
+                perc_i = np.round(countNonZero(mask_i)/count_i*100, decimals= 4)
                 percents.append(np.round(perc_i, decimals = 2))
 
                 
 
-                vis = np.concatenate((img_i,cv2.cvtColor(mask_i,cv2.COLOR_GRAY2RGB)), axis=1)
+                vis = np.concatenate((img_i,cvtColor(mask_i,COLOR_GRAY2RGB)), axis=1)
                 #cv2.imwrite(save_path+'/output_'+dataname+ '_'+foldername+'\\'+str(i.name)[:-4]+'_masked.jpg', vis)
                 fig, ax = plt.subplots()
-                ax.imshow(cv2.cvtColor(vis, cv2.COLOR_BGR2RGB))
+                ax.imshow(cvtColor(vis, COLOR_BGR2RGB))
                 ax.text(1, 0, str(np.round(perc_i, decimals = 2))+' %', fontsize = 8, color = 'black',
                     bbox=dict(facecolor='white', edgecolor='none', alpha = 0.7, pad = 2),
                     horizontalalignment='right',
