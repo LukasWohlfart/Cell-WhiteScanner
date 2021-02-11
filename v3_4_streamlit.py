@@ -7,7 +7,7 @@ from PIL import Image
 import base64
 from io import BytesIO
 import matplotlib.pyplot as plt
-st.title('Whitescanner-Tool: Cell-Masking')
+st.title('Whitescanner-Tool V1: Cell-Masking')
 
 # def file_selector(folder_path='.'):
 #     filenames = os.listdir(folder_path)
