@@ -31,18 +31,13 @@ selected = st.sidebar.selectbox('Select Picture', all_pics, format_func= format_
 
 col1, col2 = st.beta_columns(2)
 
-def get_table_download_link(df):
-    val = to_excel(df)
-    b64 = base64.b64encode(val)  # val looks like b'...'
-    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="extract.xlsx">Download xlsx file</a>' # decode b'abc' => abc
-
-def to_excel_file(df, thresh, path):
+def to_excel_file(df, thresh):
     output = BytesIO()
     dict2 = {'threshold': ['threshold'], 'value': [float(thresh)]}
     df2 = pd.DataFrame(dict2) 
 
     column_settings = [{'header': column} for column in df.columns]
-    writer = pd.ExcelWriter(path, engine='xlsxwriter')
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
     df.to_excel(writer, sheet_name='Output', index = False)
     (max_row, max_col) = df.shape
     workbook  = writer.book
@@ -62,6 +57,11 @@ def to_excel_file(df, thresh, path):
     writer.save()
     processed_data = output.getvalue()
     return processed_data
+
+def get_table_download_link(df, thresh):
+    val = to_excel_file(df, thresh)
+    b64 = base64.b64encode(val)  # val looks like b'...'
+    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="extract.xlsx">Download xlsx file</a>' # decode b'abc' => abc
 
 if selected is not None and len(save_path) > 5:
     img = Image.open(selected)
@@ -138,7 +138,7 @@ if selected is not None and len(save_path) > 5:
                 #fig.savefig(save_path+'/output_'+dataname+ '_'+foldername+'/'+str(i.name)[:-4]+'_masked.jpg', dpi=500, bbox_inches='tight', pad_inches=0)
                 counter_bar += 1
                 progress_bar.progress(counter_bar/max_bar)
-    st.markdown(get_table_download_link(df), unsafe_allow_html=True)
+    st.markdown(get_table_download_link(df_data, thresh), unsafe_allow_html=True)
     #if st.button('Download Excel'):
     #    to_excel_file(df_data, thresh, save_path+'/output_'+dataname+ '_'+foldername+'/'+'output.xlsx')
     
