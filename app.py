@@ -31,7 +31,13 @@ selected = st.sidebar.selectbox('Select Picture', all_pics, format_func= format_
 
 col1, col2 = st.beta_columns(2)
 
+def get_table_download_link(df):
+    val = to_excel(df)
+    b64 = base64.b64encode(val)  # val looks like b'...'
+    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="extract.xlsx">Download xlsx file</a>' # decode b'abc' => abc
+
 def to_excel_file(df, thresh, path):
+    output = BytesIO()
     dict2 = {'threshold': ['threshold'], 'value': [float(thresh)]}
     df2 = pd.DataFrame(dict2) 
 
@@ -54,6 +60,8 @@ def to_excel_file(df, thresh, path):
         # set the column length
         worksheet.set_column(i, i, column_len)
     writer.save()
+    processed_data = output.getvalue()
+    return processed_data
 
 if selected is not None and len(save_path) > 5:
     img = Image.open(selected)
@@ -92,11 +100,11 @@ if selected is not None and len(save_path) > 5:
     df_data = pd.DataFrame(dict_data)
     df_data = df_data.sort_values(by=['Name'])
     st.table(df_data.style.format({"Percent": "{:.2f}"}))
-    path_test = os.path.normpath(save_path)
-    dataname = path_test.split(os.sep)[-2]
-    foldername = path_test.split(os.sep)[-1]
-    if not os.path.exists(save_path+'/output_'+dataname+ '_'+foldername):
-        os.makedirs(save_path+'/output_'+dataname+ '_'+foldername)
+    #path_test = os.path.normpath(save_path)
+    #dataname = path_test.split(os.sep)[-2]
+    #foldername = path_test.split(os.sep)[-1]
+    #if not os.path.exists(save_path+'/output_'+dataname+ '_'+foldername):
+    #    os.makedirs(save_path+'/output_'+dataname+ '_'+foldername)
     col1, col2, col3, col4 = st.beta_columns(4)
     progress_bar = col2.progress(0)
     if col1.button('Save Images'):
@@ -127,9 +135,10 @@ if selected is not None and len(save_path) > 5:
                     transform=ax.transAxes)
                 ax.axis('off')
                 # Add the patch to the Axes
-                fig.savefig(save_path+'/output_'+dataname+ '_'+foldername+'/'+str(i.name)[:-4]+'_masked.jpg', dpi=500, bbox_inches='tight', pad_inches=0)
+                #fig.savefig(save_path+'/output_'+dataname+ '_'+foldername+'/'+str(i.name)[:-4]+'_masked.jpg', dpi=500, bbox_inches='tight', pad_inches=0)
                 counter_bar += 1
                 progress_bar.progress(counter_bar/max_bar)
-                
-    if st.button('Download Excel'):
-        to_excel_file(df_data, thresh, save_path+'/output_'+dataname+ '_'+foldername+'/'+'output.xlsx')
+    st.markdown(get_table_download_link(df), unsafe_allow_html=True)
+    #if st.button('Download Excel'):
+    #    to_excel_file(df_data, thresh, save_path+'/output_'+dataname+ '_'+foldername+'/'+'output.xlsx')
+    
